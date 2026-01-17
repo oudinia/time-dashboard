@@ -11,6 +11,7 @@ import { TimeZoneSlot, TimeZoneSlotFormData } from '@/types/timezone';
 import { MEMBER_COLORS } from '@/lib/utils';
 import { getTimezoneOffset } from '@/lib/timezone';
 import { COMMON_COUNTRIES, getNextHoliday, formatHolidayDate } from '@/lib/holidays';
+import { getCountryFromTimezone } from '@/lib/timezone-country';
 
 interface TimezoneFormProps {
   slot?: TimeZoneSlot;
@@ -19,13 +20,24 @@ interface TimezoneFormProps {
 }
 
 function TimezoneForm({ slot, onSubmit, onCancel }: TimezoneFormProps) {
+  const initialTimezone = slot?.timezone || 'America/New_York';
   const [formData, setFormData] = useState<TimeZoneSlotFormData>({
-    timezone: slot?.timezone || 'America/New_York',
+    timezone: initialTimezone,
     label: slot?.label || '',
-    country: slot?.country || 'US',
+    country: slot?.country || getCountryFromTimezone(initialTimezone) || 'US',
     workingHours: slot?.workingHours || { start: '09:00', end: '17:00' },
     color: slot?.color || MEMBER_COLORS[0],
   });
+
+  const handleTimezoneChange = (tz: string) => {
+    const detectedCountry = getCountryFromTimezone(tz);
+    setFormData({
+      ...formData,
+      timezone: tz,
+      // Auto-update country if we can detect it, otherwise keep current
+      ...(detectedCountry ? { country: detectedCountry } : {}),
+    });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +61,7 @@ function TimezoneForm({ slot, onSubmit, onCancel }: TimezoneFormProps) {
         <Label>Timezone</Label>
         <TimezoneSelector
           value={formData.timezone}
-          onChange={(tz) => setFormData({ ...formData, timezone: tz })}
+          onChange={handleTimezoneChange}
         />
       </div>
 
