@@ -5,7 +5,7 @@ import { useMultipleTimezones } from '@/hooks/useCurrentTime';
 import { useTimezoneStore } from '@/stores/timezoneStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { getTimezoneAbbreviation, formatDate } from '@/lib/timezone';
-import { getNextHoliday, formatHolidayDate } from '@/lib/holidays';
+import { getNextHoliday } from '@/lib/holidays';
 import { TimeZoneSlot } from '@/types/timezone';
 
 interface WorldClockWidgetProps {
