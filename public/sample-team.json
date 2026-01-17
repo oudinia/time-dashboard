@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sample1",
+    "name": "Sarah Chen",
+    "role": "Engineering Lead",
+    "timezone": "America/Los_Angeles",
+    "location": "San Francisco, USA",
+    "workingHours": {
+      "start": "09:00",
+      "end": "17:00",
+      "days": [1, 2, 3, 4, 5]
+    },
+    "color": "#3B82F6"
+  },
+  {
+    "id": "sample2",
+    "name": "Alex Mueller",
+    "role": "Senior Developer",
+    "timezone": "Europe/Berlin",
+    "location": "Berlin, Germany",
+    "workingHours": {
+      "start": "09:00",
+      "end": "18:00",
+      "days": [1, 2, 3, 4, 5]
+    },
+    "color": "#10B981"
+  },
+  {
+    "id": "sample3",
+    "name": "Priya Sharma",
+    "role": "Backend Engineer",
+    "timezone": "Asia/Kolkata",
+    "location": "Mumbai, India",
+    "workingHours": {
+      "start": "10:00",
+      "end": "19:00",
+      "days": [1, 2, 3, 4, 5]
+    },
+    "color": "#F59E0B"
+  }
+]
