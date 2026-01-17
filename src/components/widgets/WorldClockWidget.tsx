@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
 import { DateTime } from 'luxon';
+import { Calendar } from 'lucide-react';
 import { useMultipleTimezones } from '@/hooks/useCurrentTime';
 import { useTimezoneStore } from '@/stores/timezoneStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { getTimezoneAbbreviation, formatDate } from '@/lib/timezone';
+import { getNextHoliday, formatHolidayDate } from '@/lib/holidays';
 import { TimeZoneSlot } from '@/types/timezone';
 
 interface WorldClockWidgetProps {
@@ -31,6 +33,9 @@ function ClockDisplay({ slot, time, timeFormat, showSeconds }: ClockDisplayProps
   const timezoneAbbr = getTimezoneAbbreviation(slot.timezone);
   const dateStr = formatDate(time);
 
+  // Get next holiday if country is set
+  const nextHoliday = slot.country ? getNextHoliday(slot.country) : null;
+
   return (
     <div className="flex flex-col items-center p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800/50">
       <div className="flex items-center gap-2 mb-2">
@@ -49,6 +54,17 @@ function ClockDisplay({ slot, time, timeFormat, showSeconds }: ClockDisplayProps
       <span className="text-xs text-neutral-400 dark:text-neutral-500">
         {dateStr}
       </span>
+      {nextHoliday && (
+        <div className="flex items-center gap-1 mt-2 px-2 py-1 rounded bg-neutral-100 dark:bg-neutral-700/50">
+          <Calendar className="w-3 h-3 text-neutral-400" />
+          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            {nextHoliday.name}
+          </span>
+          <span className="text-xs text-neutral-400 dark:text-neutral-500">
+            ({nextHoliday.daysUntil === 0 ? 'Today' : nextHoliday.daysUntil === 1 ? 'Tomorrow' : `in ${nextHoliday.daysUntil}d`})
+          </span>
+        </div>
+      )}
     </div>
   );
 }

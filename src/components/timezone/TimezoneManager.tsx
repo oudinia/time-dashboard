@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Clock } from 'lucide-react';
+import { Plus, Pencil, Trash2, Clock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { useTimezoneStore } from '@/stores/timezoneStore';
 import { TimeZoneSlot, TimeZoneSlotFormData } from '@/types/timezone';
 import { MEMBER_COLORS } from '@/lib/utils';
 import { getTimezoneOffset } from '@/lib/timezone';
+import { COMMON_COUNTRIES, getNextHoliday, formatHolidayDate } from '@/lib/holidays';
 
 interface TimezoneFormProps {
   slot?: TimeZoneSlot;
@@ -21,6 +22,7 @@ function TimezoneForm({ slot, onSubmit, onCancel }: TimezoneFormProps) {
   const [formData, setFormData] = useState<TimeZoneSlotFormData>({
     timezone: slot?.timezone || 'America/New_York',
     label: slot?.label || '',
+    country: slot?.country || 'US',
     workingHours: slot?.workingHours || { start: '09:00', end: '17:00' },
     color: slot?.color || MEMBER_COLORS[0],
   });
@@ -49,6 +51,23 @@ function TimezoneForm({ slot, onSubmit, onCancel }: TimezoneFormProps) {
           value={formData.timezone}
           onChange={(tz) => setFormData({ ...formData, timezone: tz })}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="country">Country (for holidays)</Label>
+        <select
+          id="country"
+          value={formData.country || ''}
+          onChange={(e) => setFormData({ ...formData, country: e.target.value || undefined })}
+          className="flex h-9 w-full rounded-md border border-neutral-200 bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-neutral-950 dark:border-neutral-800 dark:focus:ring-neutral-300"
+        >
+          <option value="">No country (skip holidays)</option>
+          {COMMON_COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -173,6 +192,16 @@ export function TimezoneManager() {
                       {slot.workingHours.start} - {slot.workingHours.end}
                     </p>
                   )}
+                  {slot.country && (() => {
+                    const holiday = getNextHoliday(slot.country);
+                    if (!holiday) return null;
+                    return (
+                      <p className="text-xs text-neutral-400 dark:text-neutral-500 flex items-center gap-1 mt-1">
+                        <Calendar className="w-3 h-3" />
+                        {holiday.name} ({formatHolidayDate(holiday.date)})
+                      </p>
+                    );
+                  })()}
                 </div>
               </div>
               <div className="flex gap-1">
