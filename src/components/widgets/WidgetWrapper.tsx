@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Settings, Trash2, X, Check } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
