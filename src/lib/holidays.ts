@@ -1,4 +1,11 @@
-import Holidays from 'date-holidays';
+// Holiday data fetched from API (seeded from date-holidays package)
+// The date-holidays package is only used during database seeding, not at runtime
+
+export interface Holiday {
+  name: string;
+  date: string;
+  type: string;
+}
 
 export interface NextHoliday {
   name: string;
@@ -6,52 +13,98 @@ export interface NextHoliday {
   daysUntil: number;
 }
 
-const holidayInstances = new Map<string, Holidays>();
+// Cache for holiday data
+const holidayCache = new Map<string, { holidays: Holiday[]; fetchedAt: number }>();
+const CACHE_DURATION = 1000 * 60 * 60; // 1 hour
 
-function getHolidayInstance(country: string): Holidays {
-  if (!holidayInstances.has(country)) {
-    const hd = new Holidays(country);
-    holidayInstances.set(country, hd);
+// API base URL - configurable for different environments
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+/**
+ * Fetch holidays for a country from the API
+ */
+export async function fetchHolidays(countryCode: string): Promise<Holiday[]> {
+  const cacheKey = countryCode.toUpperCase();
+  const cached = holidayCache.get(cacheKey);
+
+  // Return cached data if fresh
+  if (cached && Date.now() - cached.fetchedAt < CACHE_DURATION) {
+    return cached.holidays;
   }
-  return holidayInstances.get(country)!;
-}
 
-export function getNextHoliday(country: string, referenceDate?: Date): NextHoliday | null {
   try {
-    const hd = getHolidayInstance(country);
-    const now = referenceDate || new Date();
-    const year = now.getFullYear();
-
-    // Get holidays for current year and next year
-    const currentYearHolidays = hd.getHolidays(year) || [];
-    const nextYearHolidays = hd.getHolidays(year + 1) || [];
-
-    // Combine and filter to only public holidays
-    const allHolidays = [...currentYearHolidays, ...nextYearHolidays]
-      .filter(h => h.type === 'public')
-      .map(h => ({
-        name: h.name,
-        date: new Date(h.date),
-      }))
-      .filter(h => h.date > now)
-      .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-    if (allHolidays.length === 0) {
-      return null;
+    const response = await fetch(`${API_BASE_URL}/api/holidays/${cacheKey}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch holidays: ${response.statusText}`);
     }
 
-    const nextHoliday = allHolidays[0];
-    const diffTime = nextHoliday.date.getTime() - now.getTime();
-    const daysUntil = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const data = await response.json();
+    const holidays: Holiday[] = data.holidays || [];
 
-    return {
-      name: nextHoliday.name,
-      date: nextHoliday.date,
-      daysUntil,
-    };
-  } catch {
+    // Cache the result
+    holidayCache.set(cacheKey, { holidays, fetchedAt: Date.now() });
+
+    return holidays;
+  } catch (error) {
+    console.error(`Error fetching holidays for ${countryCode}:`, error);
+    // Return cached data even if stale, or empty array
+    return cached?.holidays || [];
+  }
+}
+
+/**
+ * Get the next upcoming holiday for a country
+ * Uses cached data if available, fetches if needed
+ */
+export function getNextHoliday(countryCode: string, referenceDate?: Date): NextHoliday | null {
+  const cacheKey = countryCode.toUpperCase();
+  const cached = holidayCache.get(cacheKey);
+
+  if (!cached || cached.holidays.length === 0) {
+    // Trigger async fetch for next time
+    fetchHolidays(countryCode);
     return null;
   }
+
+  const now = referenceDate || new Date();
+
+  // Find the next upcoming holiday
+  const upcomingHolidays = cached.holidays
+    .map((h) => ({
+      name: h.name,
+      date: new Date(h.date),
+    }))
+    .filter((h) => h.date > now)
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  if (upcomingHolidays.length === 0) {
+    return null;
+  }
+
+  const nextHoliday = upcomingHolidays[0];
+  const diffTime = nextHoliday.date.getTime() - now.getTime();
+  const daysUntil = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return {
+    name: nextHoliday.name,
+    date: nextHoliday.date,
+    daysUntil,
+  };
+}
+
+/**
+ * Preload holidays for multiple countries
+ * Call this on app initialization
+ */
+export async function preloadHolidays(countryCodes: string[]): Promise<void> {
+  await Promise.all(countryCodes.map((code) => fetchHolidays(code)));
+}
+
+/**
+ * Clear the holiday cache
+ */
+export function clearHolidayCache(): void {
+  holidayCache.clear();
 }
 
 // Common countries with their codes for the selector
@@ -86,6 +139,6 @@ export const COMMON_COUNTRIES = [
 export function formatHolidayDate(date: Date): string {
   return date.toLocaleDateString('en-US', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 }

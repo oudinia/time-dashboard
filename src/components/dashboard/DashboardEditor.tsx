@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
-import { Plus, Download, Upload, Clock, BarChart3 } from 'lucide-react';
+import { Plus, Download, Upload, Clock, BarChart3, Puzzle, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useTimezoneStore } from '@/stores/timezoneStore';
+import { useCustomWidgetStore } from '@/stores/customWidgetStore';
 import { WidgetConfig } from '@/types/dashboard';
+import { WidgetLibrary } from '@/components/widgets/WidgetLibrary';
 import { cn } from '@/lib/utils';
 
 interface DashboardEditorProps {
@@ -31,22 +33,47 @@ const WIDGET_OPTIONS: WidgetOption[] = [
     description: '24-hour bar showing time across zones',
     icon: <BarChart3 className="w-8 h-8" />,
   },
+  {
+    type: 'custom',
+    label: 'Custom Widget',
+    description: 'Choose from your widget library',
+    icon: <Puzzle className="w-8 h-8" />,
+  },
 ];
 
 export function DashboardEditor({ dashboardId }: DashboardEditorProps) {
-  const { addWidget, exportDashboard, importDashboard } = useDashboardStore();
+  const { addWidget, updateWidget, exportDashboard, importDashboard, getActiveDashboard } = useDashboardStore();
   const { slots } = useTimezoneStore();
+  const { widgets: customWidgets } = useCustomWidgetStore();
   const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [importText, setImportText] = useState('');
   const [importError, setImportError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleAddWidget = (type: WidgetConfig['type']) => {
+    if (type === 'custom') {
+      // Open widget library to select a custom widget
+      setIsAddWidgetOpen(false);
+      setIsLibraryOpen(true);
+      return;
+    }
+
     // Add widget with all available timezones by default
     const timezoneIds = slots.map((s) => s.id);
     addWidget(dashboardId, type, timezoneIds);
     setIsAddWidgetOpen(false);
+  };
+
+  const handleSelectCustomWidget = (customWidgetId: string) => {
+    // Add custom widget with all available timezones
+    const timezoneIds = slots.map((s) => s.id);
+    const newWidget = addWidget(dashboardId, 'custom', timezoneIds);
+
+    // Update the widget with the customWidgetId
+    updateWidget(dashboardId, newWidget.id, { customWidgetId });
+    setIsLibraryOpen(false);
   };
 
   const handleExport = () => {
@@ -109,6 +136,10 @@ export function DashboardEditor({ dashboardId }: DashboardEditorProps) {
           <Plus className="w-4 h-4 mr-1" />
           Add Widget
         </Button>
+        <Button size="sm" variant="outline" onClick={() => setIsLibraryOpen(true)}>
+          <FolderOpen className="w-4 h-4 mr-1" />
+          Library
+        </Button>
         <Button size="sm" variant="outline" onClick={handleExport}>
           <Download className="w-4 h-4 mr-1" />
           Export
@@ -145,6 +176,11 @@ export function DashboardEditor({ dashboardId }: DashboardEditorProps) {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     {option.description}
                   </p>
+                  {option.type === 'custom' && customWidgets.length > 0 && (
+                    <p className="text-xs text-blue-500 mt-1">
+                      {customWidgets.length} widget{customWidgets.length !== 1 ? 's' : ''} available
+                    </p>
+                  )}
                 </div>
               </button>
             ))}
@@ -214,6 +250,14 @@ export function DashboardEditor({ dashboardId }: DashboardEditorProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Widget Library */}
+      <WidgetLibrary
+        open={isLibraryOpen}
+        onOpenChange={setIsLibraryOpen}
+        onSelectWidget={handleSelectCustomWidget}
+        selectionMode
+      />
     </>
   );
 }
