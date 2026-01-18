@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { GripVertical, Settings, Trash2, Check } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTimezoneStore } from '@/stores/timezoneStore';
 import { useDashboardStore } from '@/stores/dashboardStore';
-import { WidgetConfig } from '@/types/dashboard';
+import { WidgetConfig, WorldClockSettings } from '@/types/dashboard';
+import { ClockDisplayMode } from '@/types/timezone';
 import { cn } from '@/lib/utils';
 
 interface WidgetWrapperProps {
@@ -74,6 +75,78 @@ function TimezonePicker({ selectedIds, onChange }: TimezonePickerProps) {
   );
 }
 
+interface DisplaySettingsProps {
+  displayMode: ClockDisplayMode;
+  showWeather: boolean;
+  onDisplayModeChange: (mode: ClockDisplayMode) => void;
+  onShowWeatherChange: (show: boolean) => void;
+}
+
+function DisplaySettings({
+  displayMode,
+  showWeather,
+  onDisplayModeChange,
+  onShowWeatherChange,
+}: DisplaySettingsProps) {
+  const displayModes: { mode: ClockDisplayMode; label: string; icon: React.ReactNode; desc: string }[] = [
+    { mode: 'compact', label: 'Compact', icon: <LayoutList className="w-4 h-4" />, desc: 'Minimal list view' },
+    { mode: 'standard', label: 'Standard', icon: <LayoutGrid className="w-4 h-4" />, desc: 'Card grid view' },
+    { mode: 'expanded', label: 'Expanded', icon: <Maximize2 className="w-4 h-4" />, desc: 'Detailed cards with weather' },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-sm font-medium mb-2">Display Mode</p>
+        <div className="grid grid-cols-3 gap-2">
+          {displayModes.map(({ mode, label, icon, desc }) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onDisplayModeChange(mode)}
+              className={cn(
+                'flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-colors',
+                displayMode === mode
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+              )}
+            >
+              {icon}
+              <span className="text-xs font-medium">{label}</span>
+              <span className="text-[10px] text-neutral-400">{desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between p-3 rounded-lg border border-neutral-200 dark:border-neutral-700">
+        <div className="flex items-center gap-2">
+          <CloudSun className="w-4 h-4 text-neutral-400" />
+          <div>
+            <p className="text-sm font-medium">Show Weather</p>
+            <p className="text-xs text-neutral-400">Display weather conditions</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => onShowWeatherChange(!showWeather)}
+          className={cn(
+            'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+            showWeather ? 'bg-blue-500' : 'bg-neutral-200 dark:bg-neutral-700'
+          )}
+        >
+          <span
+            className={cn(
+              'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+              showWeather ? 'translate-x-6' : 'translate-x-1'
+            )}
+          />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function WidgetWrapper({
   widget,
   dashboardId,
@@ -86,6 +159,17 @@ export function WidgetWrapper({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [pendingTimezones, setPendingTimezones] = useState<string[]>(widget.timezones);
 
+  // World clock specific settings
+  const currentSettings = widget.settings as Partial<WorldClockSettings> || {};
+  const [pendingDisplayMode, setPendingDisplayMode] = useState<ClockDisplayMode>(
+    currentSettings.displayMode ?? 'standard'
+  );
+  const [pendingShowWeather, setPendingShowWeather] = useState(
+    currentSettings.showWeather ?? true
+  );
+
+  const isWorldClock = widget.type === 'world-clock';
+
   const handleDelete = () => {
     if (confirm('Remove this widget from the dashboard?')) {
       deleteWidget(dashboardId, widget.id);
@@ -93,12 +177,26 @@ export function WidgetWrapper({
   };
 
   const handleSaveSettings = () => {
-    updateWidget(dashboardId, widget.id, { timezones: pendingTimezones });
+    const updates: Partial<WidgetConfig> = {
+      timezones: pendingTimezones,
+    };
+
+    if (isWorldClock) {
+      updates.settings = {
+        ...currentSettings,
+        displayMode: pendingDisplayMode,
+        showWeather: pendingShowWeather,
+      };
+    }
+
+    updateWidget(dashboardId, widget.id, updates);
     setIsSettingsOpen(false);
   };
 
   const openSettings = () => {
     setPendingTimezones(widget.timezones);
+    setPendingDisplayMode(currentSettings.displayMode ?? 'standard');
+    setPendingShowWeather(currentSettings.showWeather ?? true);
     setIsSettingsOpen(true);
   };
 
@@ -147,14 +245,29 @@ export function WidgetWrapper({
 
       {/* Settings Dialog */}
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{title} Settings</DialogTitle>
           </DialogHeader>
-          <TimezonePicker
-            selectedIds={pendingTimezones}
-            onChange={setPendingTimezones}
-          />
+
+          <div className="space-y-6">
+            {isWorldClock && (
+              <DisplaySettings
+                displayMode={pendingDisplayMode}
+                showWeather={pendingShowWeather}
+                onDisplayModeChange={setPendingDisplayMode}
+                onShowWeatherChange={setPendingShowWeather}
+              />
+            )}
+
+            <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
+              <TimezonePicker
+                selectedIds={pendingTimezones}
+                onChange={setPendingTimezones}
+              />
+            </div>
+          </div>
+
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
               Cancel

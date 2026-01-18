@@ -1,9 +1,11 @@
 import { useState, useCallback } from 'react';
-import { WidgetConfig } from '@/types/dashboard';
+import { WidgetConfig, WorldClockSettings } from '@/types/dashboard';
 import { WidgetWrapper } from '@/components/widgets/WidgetWrapper';
 import { WorldClockWidget } from '@/components/widgets/WorldClockWidget';
 import { TimelineWidget } from '@/components/widgets/TimelineWidget';
+import { CustomWidget } from '@/components/widgets/CustomWidget';
 import { useDashboardStore } from '@/stores/dashboardStore';
+import { useCustomWidgetStore } from '@/stores/customWidgetStore';
 import { cn } from '@/lib/utils';
 
 interface DashboardGridProps {
@@ -11,17 +13,35 @@ interface DashboardGridProps {
   widgets: WidgetConfig[];
 }
 
-const WIDGET_TITLES: Record<WidgetConfig['type'], string> = {
+const WIDGET_TITLES: Record<Exclude<WidgetConfig['type'], 'custom'>, string> = {
   'world-clock': 'World Clock',
   timeline: 'Timeline',
 };
 
-function renderWidget(widget: WidgetConfig) {
+function getWidgetTitle(widget: WidgetConfig, getWidget: (id: string) => { name: string } | null): string {
+  if (widget.type === 'custom' && widget.customWidgetId) {
+    const customWidget = getWidget(widget.customWidgetId);
+    return customWidget?.name || 'Custom Widget';
+  }
+  return WIDGET_TITLES[widget.type as keyof typeof WIDGET_TITLES] || 'Widget';
+}
+
+function RenderWidget({ widget }: { widget: WidgetConfig }) {
   switch (widget.type) {
     case 'world-clock':
-      return <WorldClockWidget timezoneIds={widget.timezones} />;
+      return (
+        <WorldClockWidget
+          timezoneIds={widget.timezones}
+          settings={widget.settings as Partial<WorldClockSettings>}
+        />
+      );
     case 'timeline':
       return <TimelineWidget timezoneIds={widget.timezones} />;
+    case 'custom':
+      if (!widget.customWidgetId) {
+        return <div className="p-4 text-center text-neutral-500">No custom widget configured</div>;
+      }
+      return <CustomWidget customWidgetId={widget.customWidgetId} timezoneIds={widget.timezones} />;
     default:
       return <div>Unknown widget type</div>;
   }
@@ -29,6 +49,7 @@ function renderWidget(widget: WidgetConfig) {
 
 export function DashboardGrid({ dashboardId, widgets }: DashboardGridProps) {
   const { updateDashboard, getActiveDashboard } = useDashboardStore();
+  const { getWidget } = useCustomWidgetStore();
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -113,10 +134,10 @@ export function DashboardGrid({ dashboardId, widgets }: DashboardGridProps) {
           <WidgetWrapper
             widget={widget}
             dashboardId={dashboardId}
-            title={WIDGET_TITLES[widget.type]}
+            title={getWidgetTitle(widget, getWidget)}
             isDragging={draggedId === widget.id}
           >
-            {renderWidget(widget)}
+            <RenderWidget widget={widget} />
           </WidgetWrapper>
         </div>
       ))}
