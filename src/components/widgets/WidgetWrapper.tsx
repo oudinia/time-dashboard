@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Columns, Square, RectangleHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -78,20 +78,31 @@ function TimezonePicker({ selectedIds, onChange }: TimezonePickerProps) {
 interface DisplaySettingsProps {
   displayMode: ClockDisplayMode;
   showWeather: boolean;
+  columns: 1 | 2 | 3 | 'auto';
   onDisplayModeChange: (mode: ClockDisplayMode) => void;
   onShowWeatherChange: (show: boolean) => void;
+  onColumnsChange: (cols: 1 | 2 | 3 | 'auto') => void;
 }
 
 function DisplaySettings({
   displayMode,
   showWeather,
+  columns,
   onDisplayModeChange,
   onShowWeatherChange,
+  onColumnsChange,
 }: DisplaySettingsProps) {
   const displayModes: { mode: ClockDisplayMode; label: string; icon: React.ReactNode; desc: string }[] = [
     { mode: 'compact', label: 'Compact', icon: <LayoutList className="w-4 h-4" />, desc: 'Minimal list view' },
     { mode: 'standard', label: 'Standard', icon: <LayoutGrid className="w-4 h-4" />, desc: 'Card grid view' },
     { mode: 'expanded', label: 'Expanded', icon: <Maximize2 className="w-4 h-4" />, desc: 'Detailed cards with weather' },
+  ];
+
+  const columnOptions: { value: 1 | 2 | 3 | 'auto'; label: string }[] = [
+    { value: 1, label: '1' },
+    { value: 2, label: '2' },
+    { value: 3, label: '3' },
+    { value: 'auto', label: 'Auto' },
   ];
 
   return (
@@ -114,6 +125,27 @@ function DisplaySettings({
               {icon}
               <span className="text-xs font-medium">{label}</span>
               <span className="text-[10px] text-neutral-400">{desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-sm font-medium mb-2">Cards Per Row</p>
+        <div className="flex gap-2">
+          {columnOptions.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onColumnsChange(value)}
+              className={cn(
+                'flex-1 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-colors',
+                columns === value
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+              )}
+            >
+              {label}
             </button>
           ))}
         </div>
@@ -159,6 +191,9 @@ export function WidgetWrapper({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [pendingTimezones, setPendingTimezones] = useState<string[]>(widget.timezones);
 
+  // Widget span (full width)
+  const [pendingSpan, setPendingSpan] = useState<1 | 2>(widget.span ?? 1);
+
   // World clock specific settings
   const currentSettings = widget.settings as Partial<WorldClockSettings> || {};
   const [pendingDisplayMode, setPendingDisplayMode] = useState<ClockDisplayMode>(
@@ -166,6 +201,9 @@ export function WidgetWrapper({
   );
   const [pendingShowWeather, setPendingShowWeather] = useState(
     currentSettings.showWeather ?? true
+  );
+  const [pendingColumns, setPendingColumns] = useState<1 | 2 | 3 | 'auto'>(
+    currentSettings.columns ?? 'auto'
   );
 
   const isWorldClock = widget.type === 'world-clock';
@@ -179,6 +217,7 @@ export function WidgetWrapper({
   const handleSaveSettings = () => {
     const updates: Partial<WidgetConfig> = {
       timezones: pendingTimezones,
+      span: pendingSpan,
     };
 
     if (isWorldClock) {
@@ -186,6 +225,7 @@ export function WidgetWrapper({
         ...currentSettings,
         displayMode: pendingDisplayMode,
         showWeather: pendingShowWeather,
+        columns: pendingColumns,
       };
     }
 
@@ -195,8 +235,10 @@ export function WidgetWrapper({
 
   const openSettings = () => {
     setPendingTimezones(widget.timezones);
+    setPendingSpan(widget.span ?? 1);
     setPendingDisplayMode(currentSettings.displayMode ?? 'standard');
     setPendingShowWeather(currentSettings.showWeather ?? true);
+    setPendingColumns(currentSettings.columns ?? 'auto');
     setIsSettingsOpen(true);
   };
 
@@ -251,12 +293,47 @@ export function WidgetWrapper({
           </DialogHeader>
 
           <div className="space-y-6">
+            {/* Widget Width */}
+            <div>
+              <p className="text-sm font-medium mb-2">Widget Width</p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPendingSpan(1)}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-colors',
+                    pendingSpan === 1
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+                  )}
+                >
+                  <Square className="w-4 h-4" />
+                  Half
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPendingSpan(2)}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border-2 text-sm font-medium transition-colors',
+                    pendingSpan === 2
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+                  )}
+                >
+                  <RectangleHorizontal className="w-4 h-4" />
+                  Full
+                </button>
+              </div>
+            </div>
+
             {isWorldClock && (
               <DisplaySettings
                 displayMode={pendingDisplayMode}
                 showWeather={pendingShowWeather}
+                columns={pendingColumns}
                 onDisplayModeChange={setPendingDisplayMode}
                 onShowWeatherChange={setPendingShowWeather}
+                onColumnsChange={setPendingColumns}
               />
             )}
 

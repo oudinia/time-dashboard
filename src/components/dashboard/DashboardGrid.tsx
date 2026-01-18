@@ -127,6 +127,7 @@ export function DashboardGrid({ dashboardId, widgets }: DashboardGridProps) {
           onDragEnd={handleDragEnd}
           className={cn(
             'transition-all duration-200',
+            widget.span === 2 && 'lg:col-span-2',
             draggedId === widget.id && 'opacity-50 scale-[0.98]',
             dragOverId === widget.id && 'ring-2 ring-blue-400 ring-offset-2 rounded-lg'
           )}

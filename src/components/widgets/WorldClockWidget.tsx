@@ -224,6 +224,7 @@ export function WorldClockWidget({ timezoneIds, settings }: WorldClockWidgetProp
 
   const displayMode = settings?.displayMode ?? 'standard';
   const showWeather = settings?.showWeather ?? true;
+  const columns = settings?.columns ?? 'auto';
 
   const selectedSlots = useMemo(() => {
     return timezoneIds
@@ -262,15 +263,26 @@ export function WorldClockWidget({ timezoneIds, settings }: WorldClockWidgetProp
     );
   }
 
-  const gridClasses = {
+  // Default grid classes by display mode
+  const defaultGridClasses = {
     compact: 'grid gap-2 grid-cols-1',
     standard: 'grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
     expanded: 'grid gap-4 grid-cols-1 lg:grid-cols-2',
   };
 
+  // Column override classes
+  const columnClasses = {
+    1: 'grid gap-4 grid-cols-1',
+    2: 'grid gap-4 grid-cols-1 sm:grid-cols-2',
+    3: 'grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+    auto: defaultGridClasses[displayMode],
+  };
+
+  const gridClass = columnClasses[columns];
+
   return (
     <div className="p-4">
-      <div className={gridClasses[displayMode]}>
+      <div className={gridClass}>
         {selectedSlots.map((slot) => (
           <ClockCard
             key={slot.id}
