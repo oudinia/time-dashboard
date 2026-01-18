@@ -1,0 +1,32 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  countryCode String   // "US", "GB", "FR"
+  name        String   // "Independence Day"
+  date        DateTime
+  type        String   // "public"
+  year        Int
+
+  @@unique([countryCode, date, name])
+  @@index([countryCode, year])
+  @@map("holidays")
+}
+
+model Country {
+  code      String  @id
+  name      String
+  supported Boolean @default(true)
+
+  @@map("countries")
+}

@@ -204,7 +204,7 @@ export const PRESET_WIDGETS: { id: string; spec: WidgetSpec }[] = [
         {
           component: 'card',
           style: { padding: 'md' },
-          layout: { gap: 'sm' },
+          layout: { type: 'stack', gap: 'sm' },
           children: [
             {
               component: 'container',

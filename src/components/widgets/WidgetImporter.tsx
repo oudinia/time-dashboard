@@ -111,12 +111,10 @@ export function WidgetImporter({ open, onOpenChange, onImport }: WidgetImporterP
             >
               Paste from Clipboard
             </Button>
-            <label>
-              <Button variant="outline" size="sm" asChild>
-                <span className="cursor-pointer">
-                  <FileJson className="w-4 h-4 mr-1" />
-                  Upload JSON File
-                </span>
+            <label className="cursor-pointer">
+              <Button variant="outline" size="sm" className="pointer-events-none">
+                <FileJson className="w-4 h-4 mr-1" />
+                Upload JSON File
               </Button>
               <input
                 type="file"

@@ -29,7 +29,7 @@ function getIcon(iconName?: string) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join('');
 
-  const Icon = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[pascalCase];
+  const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[pascalCase];
   return Icon || null;
 }
 

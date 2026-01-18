@@ -3,7 +3,6 @@ import { persist } from 'zustand/middleware';
 import type {
   WidgetSpec,
   WidgetCategory,
-  WidgetIcon,
 } from '@/types/widget-spec';
 import type {
   LocalCustomWidget,

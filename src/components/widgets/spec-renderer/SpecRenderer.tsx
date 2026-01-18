@@ -1,5 +1,4 @@
 import { useMemo } from 'react';
-import type { DateTime } from 'luxon';
 import type {
   WidgetSpec,
   DisplayConfig,
@@ -53,7 +52,7 @@ function DisplayComponentRenderer({ config, data, index }: DisplayComponentRende
 
   // Apply style classes
   const styleClasses = getStyleClasses(config.style);
-  const inlineStyles = getInlineStyles(config.style);
+  void getInlineStyles; // Currently unused but available for future use
 
   // Handle container components with children
   if (config.children && config.children.length > 0) {
