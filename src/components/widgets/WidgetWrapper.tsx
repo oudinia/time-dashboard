@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Square, RectangleHorizontal, Pencil } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Square, RectangleHorizontal, Pencil, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTimezoneStore } from '@/stores/timezoneStore';
 import { useDashboardStore } from '@/stores/dashboardStore';
-import { WidgetConfig, WorldClockSettings } from '@/types/dashboard';
+import { WidgetConfig, WorldClockSettings, FlagDisplayMode } from '@/types/dashboard';
 import { ClockDisplayMode } from '@/types/timezone';
 import { cn } from '@/lib/utils';
 
@@ -79,18 +79,22 @@ interface DisplaySettingsProps {
   displayMode: ClockDisplayMode;
   showWeather: boolean;
   columns: 1 | 2 | 3 | 'auto';
+  flagDisplay: FlagDisplayMode;
   onDisplayModeChange: (mode: ClockDisplayMode) => void;
   onShowWeatherChange: (show: boolean) => void;
   onColumnsChange: (cols: 1 | 2 | 3 | 'auto') => void;
+  onFlagDisplayChange: (mode: FlagDisplayMode) => void;
 }
 
 function DisplaySettings({
   displayMode,
   showWeather,
   columns,
+  flagDisplay,
   onDisplayModeChange,
   onShowWeatherChange,
   onColumnsChange,
+  onFlagDisplayChange,
 }: DisplaySettingsProps) {
   const displayModes: { mode: ClockDisplayMode; label: string; icon: React.ReactNode; desc: string }[] = [
     { mode: 'compact', label: 'Compact', icon: <LayoutList className="w-4 h-4" />, desc: 'Minimal list view' },
@@ -103,6 +107,13 @@ function DisplaySettings({
     { value: 2, label: '2' },
     { value: 3, label: '3' },
     { value: 'auto', label: 'Auto' },
+  ];
+
+  const flagOptions: { value: FlagDisplayMode; label: string; desc: string }[] = [
+    { value: 'both', label: 'Both', desc: 'State + Country (US)' },
+    { value: 'state', label: 'State', desc: 'State only (US)' },
+    { value: 'country', label: 'Country', desc: 'Country only' },
+    { value: 'none', label: 'None', desc: 'Hide flags' },
   ];
 
   return (
@@ -146,6 +157,31 @@ function DisplaySettings({
               )}
             >
               {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Flag className="w-4 h-4 text-neutral-400" />
+          <p className="text-sm font-medium">Flag Display</p>
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {flagOptions.map(({ value, label, desc }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => onFlagDisplayChange(value)}
+              className={cn(
+                'flex flex-col items-center gap-1 py-2 px-2 rounded-lg border-2 transition-colors',
+                flagDisplay === value
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'
+              )}
+            >
+              <span className="text-xs font-medium">{label}</span>
+              <span className="text-[10px] text-neutral-400 text-center leading-tight">{desc}</span>
             </button>
           ))}
         </div>
@@ -208,6 +244,9 @@ export function WidgetWrapper({
   const [pendingColumns, setPendingColumns] = useState<1 | 2 | 3 | 'auto'>(
     currentSettings.columns ?? 'auto'
   );
+  const [pendingFlagDisplay, setPendingFlagDisplay] = useState<FlagDisplayMode>(
+    currentSettings.flagDisplay ?? 'both'
+  );
 
   const isWorldClock = widget.type === 'world-clock';
 
@@ -230,6 +269,7 @@ export function WidgetWrapper({
         displayMode: pendingDisplayMode,
         showWeather: pendingShowWeather,
         columns: pendingColumns,
+        flagDisplay: pendingFlagDisplay,
       };
     }
 
@@ -244,6 +284,7 @@ export function WidgetWrapper({
     setPendingDisplayMode(currentSettings.displayMode ?? 'standard');
     setPendingShowWeather(currentSettings.showWeather ?? true);
     setPendingColumns(currentSettings.columns ?? 'auto');
+    setPendingFlagDisplay(currentSettings.flagDisplay ?? 'both');
     setIsSettingsOpen(true);
   };
 
@@ -352,9 +393,11 @@ export function WidgetWrapper({
                 displayMode={pendingDisplayMode}
                 showWeather={pendingShowWeather}
                 columns={pendingColumns}
+                flagDisplay={pendingFlagDisplay}
                 onDisplayModeChange={setPendingDisplayMode}
                 onShowWeatherChange={setPendingShowWeather}
                 onColumnsChange={setPendingColumns}
+                onFlagDisplayChange={setPendingFlagDisplay}
               />
             )}
 

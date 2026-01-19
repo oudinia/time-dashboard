@@ -90,36 +90,79 @@ export interface FlagInfo {
   code: string;
 }
 
+export interface FlagSet {
+  state: FlagInfo | null;   // US state flag (null for non-US)
+  country: FlagInfo | null; // Country flag
+  isUS: boolean;            // Whether this is a US timezone
+}
+
 /**
- * Get flag info for a timezone slot
+ * Get full flag set for a timezone slot (both state and country for US)
+ */
+export function getFlagsForTimezone(
+  timezone: string,
+  country?: string,
+  label?: string
+): FlagSet {
+  const isUS = country === 'US' ||
+    (timezone.startsWith('America/') && !isNonUSAmerica(timezone)) ||
+    timezone.startsWith('Pacific/Honolulu');
+
+  if (isUS) {
+    const stateCode = getUSStateCode(timezone, label);
+    return {
+      state: stateCode ? {
+        url: `https://flagcdn.com/w40/us-${stateCode}.png`,
+        alt: stateCode.toUpperCase(),
+        code: `us-${stateCode}`,
+      } : null,
+      country: {
+        url: 'https://flagcdn.com/w40/us.png',
+        alt: 'US',
+        code: 'us',
+      },
+      isUS: true,
+    };
+  }
+
+  // Non-US: only country flag
+  return {
+    state: null,
+    country: country ? {
+      url: `https://flagcdn.com/w40/${country.toLowerCase()}.png`,
+      alt: country,
+      code: country.toLowerCase(),
+    } : null,
+    isUS: false,
+  };
+}
+
+/**
+ * Check if an America/* timezone is NOT in the US
+ */
+function isNonUSAmerica(timezone: string): boolean {
+  const nonUSPrefixes = [
+    'America/Toronto', 'America/Vancouver', 'America/Montreal', 'America/Edmonton',
+    'America/Winnipeg', 'America/Halifax', 'America/St_Johns', 'America/Regina',
+    'America/Mexico_City', 'America/Tijuana', 'America/Cancun', 'America/Monterrey',
+    'America/Bogota', 'America/Lima', 'America/Santiago', 'America/Buenos_Aires',
+    'America/Sao_Paulo', 'America/Caracas', 'America/Guatemala', 'America/Panama',
+    'America/Havana', 'America/Jamaica', 'America/Puerto_Rico', 'America/Santo_Domingo',
+  ];
+  return nonUSPrefixes.some(prefix => timezone.startsWith(prefix));
+}
+
+/**
+ * Get flag info for a timezone slot (legacy - returns single flag)
  */
 export function getFlagForTimezone(
   timezone: string,
   country?: string,
   label?: string
 ): FlagInfo | null {
-  // US-specific: try to get state flag
-  if (country === 'US' || timezone.startsWith('America/') || timezone.startsWith('Pacific/Honolulu')) {
-    const stateCode = getUSStateCode(timezone, label);
-    if (stateCode) {
-      return {
-        url: `https://flagcdn.com/w40/us-${stateCode}.png`,
-        alt: stateCode.toUpperCase(),
-        code: `us-${stateCode}`,
-      };
-    }
-  }
-
-  // Non-US: use country flag
-  if (country && country !== 'US') {
-    return {
-      url: `https://flagcdn.com/w40/${country.toLowerCase()}.png`,
-      alt: country,
-      code: country.toLowerCase(),
-    };
-  }
-
-  return null;
+  const flags = getFlagsForTimezone(timezone, country, label);
+  // Return state flag for US, country flag for others
+  return flags.state || flags.country;
 }
 
 /**

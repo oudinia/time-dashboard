@@ -7,9 +7,9 @@ import { useTimezoneStore } from '@/stores/timezoneStore';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { getTimezoneAbbreviation, formatDate, getTimezoneOffset } from '@/lib/timezone';
 import { getWeatherIcon, getWeatherDescription, WeatherData } from '@/lib/weather';
-import { getFlagForTimezone, FlagInfo } from '@/lib/flags';
+import { getFlagsForTimezone, FlagSet, FlagInfo } from '@/lib/flags';
 import { TimeZoneSlot, ClockDisplayMode } from '@/types/timezone';
-import { WorldClockSettings } from '@/types/dashboard';
+import { WorldClockSettings, FlagDisplayMode } from '@/types/dashboard';
 
 interface WorldClockWidgetProps {
   timezoneIds: string[];
@@ -20,17 +20,16 @@ interface ClockCardProps {
   slot: TimeZoneSlot;
   time: DateTime;
   weather: WeatherData | null;
-  flag: FlagInfo | null;
+  flags: FlagSet;
+  flagDisplay: FlagDisplayMode;
   timeFormat: '12h' | '24h';
   showSeconds: boolean;
   displayMode: ClockDisplayMode;
   showWeather: boolean;
 }
 
-// Discrete flag display component
-function FlagIcon({ flag, size = 'sm' }: { flag: FlagInfo | null; size?: 'sm' | 'md' }) {
-  if (!flag) return null;
-
+// Single flag image component
+function FlagImage({ flag, size = 'sm' }: { flag: FlagInfo; size?: 'sm' | 'md' }) {
   const sizeClasses = {
     sm: 'w-4 h-3',
     md: 'w-5 h-4',
@@ -46,7 +45,39 @@ function FlagIcon({ flag, size = 'sm' }: { flag: FlagInfo | null; size?: 'sm' | 
   );
 }
 
-function CompactClockCard({ slot, time, weather, flag, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
+// Flag display component that handles both state and country flags
+function FlagDisplay({ flags, flagDisplay, size = 'sm' }: { flags: FlagSet; flagDisplay: FlagDisplayMode; size?: 'sm' | 'md' }) {
+  if (flagDisplay === 'none') return null;
+
+  // For US locations
+  if (flags.isUS) {
+    if (flagDisplay === 'both') {
+      return (
+        <div className="flex items-center gap-1">
+          {flags.state && <FlagImage flag={flags.state} size={size} />}
+          {flags.country && <FlagImage flag={flags.country} size={size} />}
+        </div>
+      );
+    }
+    if (flagDisplay === 'state' && flags.state) {
+      return <FlagImage flag={flags.state} size={size} />;
+    }
+    if (flagDisplay === 'country' && flags.country) {
+      return <FlagImage flag={flags.country} size={size} />;
+    }
+    // Fallback: show state if available, otherwise country
+    return flags.state ? <FlagImage flag={flags.state} size={size} /> : (flags.country ? <FlagImage flag={flags.country} size={size} /> : null);
+  }
+
+  // For non-US: only show country flag (state/country mode doesn't matter)
+  if (flags.country) {
+    return <FlagImage flag={flags.country} size={size} />;
+  }
+
+  return null;
+}
+
+function CompactClockCard({ slot, time, weather, flags, flagDisplay, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
   const timeFormatString = timeFormat === '12h'
     ? showSeconds ? 'hh:mm:ss a' : 'hh:mm a'
     : showSeconds ? 'HH:mm:ss' : 'HH:mm';
@@ -60,7 +91,7 @@ function CompactClockCard({ slot, time, weather, flag, timeFormat, showSeconds, 
           className="w-2 h-2 rounded-full shrink-0"
           style={{ backgroundColor: slot.color }}
         />
-        <FlagIcon flag={flag} size="sm" />
+        <FlagDisplay flags={flags} flagDisplay={flagDisplay} size="sm" />
         <span className="font-medium text-sm truncate">{slot.label}</span>
       </div>
       <div className="flex items-center gap-3">
@@ -75,7 +106,7 @@ function CompactClockCard({ slot, time, weather, flag, timeFormat, showSeconds, 
   );
 }
 
-function StandardClockCard({ slot, time, weather, flag, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
+function StandardClockCard({ slot, time, weather, flags, flagDisplay, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
   const timeFormatString = timeFormat === '12h'
     ? showSeconds ? 'hh:mm:ss a' : 'hh:mm a'
     : showSeconds ? 'HH:mm:ss' : 'HH:mm';
@@ -91,7 +122,7 @@ function StandardClockCard({ slot, time, weather, flag, timeFormat, showSeconds,
           className="w-2.5 h-2.5 rounded-full shrink-0"
           style={{ backgroundColor: slot.color }}
         />
-        <FlagIcon flag={flag} size="sm" />
+        <FlagDisplay flags={flags} flagDisplay={flagDisplay} size="sm" />
         <span className="font-medium text-sm truncate max-w-[150px]">{slot.label}</span>
       </div>
       <span className="font-mono text-2xl font-semibold tabular-nums tracking-tight">
@@ -114,7 +145,7 @@ function StandardClockCard({ slot, time, weather, flag, timeFormat, showSeconds,
   );
 }
 
-function ExpandedClockCard({ slot, time, weather, flag, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
+function ExpandedClockCard({ slot, time, weather, flags, flagDisplay, timeFormat, showSeconds, showWeather }: Omit<ClockCardProps, 'displayMode'>) {
   const timeFormatString = timeFormat === '12h'
     ? showSeconds ? 'hh:mm:ss a' : 'hh:mm a'
     : showSeconds ? 'HH:mm:ss' : 'HH:mm';
@@ -133,7 +164,7 @@ function ExpandedClockCard({ slot, time, weather, flag, timeFormat, showSeconds,
             className="w-3 h-3 rounded-full"
             style={{ backgroundColor: slot.color }}
           />
-          <FlagIcon flag={flag} size="md" />
+          <FlagDisplay flags={flags} flagDisplay={flagDisplay} size="md" />
           <div>
             <h3 className="font-semibold text-lg">{slot.label}</h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
@@ -249,6 +280,7 @@ export function WorldClockWidget({ timezoneIds, settings }: WorldClockWidgetProp
   const displayMode = settings?.displayMode ?? 'standard';
   const showWeather = settings?.showWeather ?? true;
   const columns = settings?.columns ?? 'auto';
+  const flagDisplay = settings?.flagDisplay ?? 'both';
 
   const selectedSlots = useMemo(() => {
     return timezoneIds
@@ -313,7 +345,8 @@ export function WorldClockWidget({ timezoneIds, settings }: WorldClockWidgetProp
             slot={slot}
             time={times[slot.timezone]}
             weather={weatherData[slot.timezone] ?? null}
-            flag={getFlagForTimezone(slot.timezone, slot.country, slot.label)}
+            flags={getFlagsForTimezone(slot.timezone, slot.country, slot.label)}
+            flagDisplay={flagDisplay}
             timeFormat={timeFormat}
             showSeconds={showSeconds}
             displayMode={displayMode}

@@ -5,12 +5,15 @@ export interface WidgetPosition {
   h: number;
 }
 
+export type FlagDisplayMode = 'both' | 'state' | 'country' | 'none';
+
 export interface WorldClockSettings {
   displayMode: 'compact' | 'standard' | 'expanded';
   showWeather: boolean;
   showHoliday: boolean;
   showWorkingHours: boolean;
   columns?: 1 | 2 | 3 | 'auto';  // Cards per row (auto = responsive)
+  flagDisplay?: FlagDisplayMode;  // Flag display mode (default: 'both' for US)
 }
 
 export interface WidgetConfig {
