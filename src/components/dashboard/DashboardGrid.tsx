@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { WidgetConfig, WorldClockSettings } from '@/types/dashboard';
 import { WidgetWrapper } from '@/components/widgets/WidgetWrapper';
 import { WorldClockWidget } from '@/components/widgets/WorldClockWidget';
@@ -6,24 +6,36 @@ import { TimelineWidget } from '@/components/widgets/TimelineWidget';
 import { CustomWidget } from '@/components/widgets/CustomWidget';
 import { useDashboardStore } from '@/stores/dashboardStore';
 import { useCustomWidgetStore } from '@/stores/customWidgetStore';
-import { cn } from '@/lib/utils';
+import { cn, generateCodename } from '@/lib/utils';
 
 interface DashboardGridProps {
   dashboardId: string;
   widgets: WidgetConfig[];
 }
 
-const WIDGET_TITLES: Record<Exclude<WidgetConfig['type'], 'custom'>, string> = {
-  'world-clock': 'World Clock',
-  timeline: 'Timeline',
-};
-
-function getWidgetTitle(widget: WidgetConfig, getWidget: (id: string) => { name: string } | null): string {
-  if (widget.type === 'custom' && widget.customWidgetId) {
-    const customWidget = getWidget(widget.customWidgetId);
-    return customWidget?.name || 'Custom Widget';
+function getWidgetTitle(
+  widget: WidgetConfig,
+  getCustomWidget: (id: string) => { name: string } | null,
+  codenameMap: Map<string, string>
+): string {
+  // Use custom title if set
+  if (widget.title) {
+    return widget.title;
   }
-  return WIDGET_TITLES[widget.type as keyof typeof WIDGET_TITLES] || 'Widget';
+
+  // For custom widgets, use the custom widget's name
+  if (widget.type === 'custom' && widget.customWidgetId) {
+    const customWidget = getCustomWidget(widget.customWidgetId);
+    if (customWidget?.name) {
+      return customWidget.name;
+    }
+  }
+
+  // Generate or retrieve codename
+  if (!codenameMap.has(widget.id)) {
+    codenameMap.set(widget.id, generateCodename());
+  }
+  return codenameMap.get(widget.id)!;
 }
 
 function RenderWidget({ widget }: { widget: WidgetConfig }) {
@@ -52,6 +64,9 @@ export function DashboardGrid({ dashboardId, widgets }: DashboardGridProps) {
   const { getWidget } = useCustomWidgetStore();
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+
+  // Stable codename map for widgets without titles
+  const codenameMap = useMemo(() => new Map<string, string>(), []);
 
   const handleDragStart = useCallback((e: React.DragEvent, widgetId: string) => {
     setDraggedId(widgetId);
@@ -135,7 +150,7 @@ export function DashboardGrid({ dashboardId, widgets }: DashboardGridProps) {
           <WidgetWrapper
             widget={widget}
             dashboardId={dashboardId}
-            title={getWidgetTitle(widget, getWidget)}
+            title={getWidgetTitle(widget, getWidget, codenameMap)}
             isDragging={draggedId === widget.id}
           >
             <RenderWidget widget={widget} />

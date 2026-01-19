@@ -29,3 +29,19 @@ export function getNextColor(usedColors: string[]): string {
   }
   return MEMBER_COLORS[Math.floor(Math.random() * MEMBER_COLORS.length)];
 }
+
+// Codename generator for widgets
+const ADJECTIVES = [
+  'Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel',
+  'India', 'Juliet', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa',
+  'Quebec', 'Romeo', 'Sierra', 'Tango', 'Uniform', 'Victor', 'Whiskey',
+  'Xray', 'Yankee', 'Zulu', 'Apex', 'Blaze', 'Cipher', 'Drift', 'Ember',
+  'Frost', 'Ghost', 'Haze', 'Ion', 'Jade', 'Karma', 'Lunar', 'Neon',
+  'Orbit', 'Pulse', 'Quartz', 'Raven', 'Storm', 'Titan', 'Vortex', 'Zenith'
+];
+
+export function generateCodename(): string {
+  const adjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+  const number = Math.floor(Math.random() * 99) + 1;
+  return `${adjective}-${number.toString().padStart(2, '0')}`;
+}

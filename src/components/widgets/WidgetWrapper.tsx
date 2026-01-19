@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Square, RectangleHorizontal } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Square, RectangleHorizontal, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -191,6 +191,9 @@ export function WidgetWrapper({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [pendingTimezones, setPendingTimezones] = useState<string[]>(widget.timezones);
 
+  // Widget title
+  const [pendingTitle, setPendingTitle] = useState(widget.title ?? '');
+
   // Widget span (full width)
   const [pendingSpan, setPendingSpan] = useState<1 | 2>(widget.span ?? 1);
 
@@ -218,6 +221,7 @@ export function WidgetWrapper({
     const updates: Partial<WidgetConfig> = {
       timezones: pendingTimezones,
       span: pendingSpan,
+      title: pendingTitle.trim() || undefined, // Clear if empty
     };
 
     if (isWorldClock) {
@@ -235,6 +239,7 @@ export function WidgetWrapper({
 
   const openSettings = () => {
     setPendingTimezones(widget.timezones);
+    setPendingTitle(widget.title ?? '');
     setPendingSpan(widget.span ?? 1);
     setPendingDisplayMode(currentSettings.displayMode ?? 'standard');
     setPendingShowWeather(currentSettings.showWeather ?? true);
@@ -293,6 +298,22 @@ export function WidgetWrapper({
           </DialogHeader>
 
           <div className="space-y-6">
+            {/* Widget Title */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Widget Name</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={pendingTitle}
+                  onChange={(e) => setPendingTitle(e.target.value)}
+                  placeholder={title}
+                  className="w-full px-3 py-2 pr-10 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              </div>
+              <p className="text-xs text-neutral-400 mt-1">Leave empty for auto-generated codename</p>
+            </div>
+
             {/* Widget Width */}
             <div>
               <p className="text-sm font-medium mb-2">Widget Width</p>

@@ -16,6 +16,7 @@ export interface WorldClockSettings {
 export interface WidgetConfig {
   id: string;
   type: 'world-clock' | 'timeline' | 'custom';
+  title?: string;             // Custom title (auto-generated codename if empty)
   timezones: string[];        // TimeZoneSlot IDs
   position: WidgetPosition;
   settings: WorldClockSettings | Record<string, unknown>;
