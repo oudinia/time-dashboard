@@ -1,0 +1,110 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "settings": "Settings",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "search": "Search",
+    "none": "None",
+    "auto": "Auto",
+    "half": "Half",
+    "full": "Full",
+    "both": "Both"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "timezones": "Timezones",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "noWidgets": "No widgets yet.",
+    "addWidgetHint": "Add a widget to get started.",
+    "removeWidget": "Remove this widget from the dashboard?"
+  },
+  "widget": {
+    "worldClock": "World Clock",
+    "timeline": "Timeline",
+    "custom": "Custom",
+    "noTimezones": "No timezones selected.",
+    "addTimezonesHint": "Add timezones to this widget to see clocks.",
+    "noCustomWidget": "No custom widget configured",
+    "unknownType": "Unknown widget type",
+    "settings": {
+      "title": "Settings",
+      "widgetName": "Widget Name",
+      "widgetNamePlaceholder": "Leave empty for auto-generated codename",
+      "widgetWidth": "Widget Width",
+      "displayMode": "Display Mode",
+      "cardsPerRow": "Cards Per Row",
+      "flagDisplay": "Flag Display",
+      "showWeather": "Show Weather",
+      "showWeatherDesc": "Display weather conditions",
+      "selectTimezones": "Select timezones to display in this widget:"
+    },
+    "displayModes": {
+      "compact": "Compact",
+      "compactDesc": "Minimal list view",
+      "standard": "Standard",
+      "standardDesc": "Card grid view",
+      "expanded": "Expanded",
+      "expandedDesc": "Detailed cards with weather"
+    },
+    "flagModes": {
+      "both": "Both",
+      "bothDesc": "State + Country (US)",
+      "state": "State",
+      "stateDesc": "State only (US)",
+      "country": "Country",
+      "countryDesc": "Country only",
+      "none": "None",
+      "noneDesc": "Hide flags"
+    }
+  },
+  "timezone": {
+    "title": "Timezones",
+    "addTimezone": "Add Timezone",
+    "editTimezone": "Edit Timezone",
+    "deleteConfirm": "Are you sure you want to delete this timezone?",
+    "noTimezones": "No timezones available. Add some in the Timezones panel.",
+    "form": {
+      "label": "Label",
+      "labelPlaceholder": "e.g., East Coast Office",
+      "timezone": "Timezone",
+      "country": "Country (for holidays)",
+      "countryNone": "No country (skip holidays)",
+      "workStart": "Work Start",
+      "workEnd": "Work End",
+      "color": "Color"
+    },
+    "workingHours": "Working hours",
+    "available": "Available",
+    "away": "Away"
+  },
+  "weather": {
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "wind": "Wind"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "timeFormat": "Time Format",
+    "showSeconds": "Show Seconds",
+    "theme": "Theme",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  }
+}

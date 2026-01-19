@@ -2,6 +2,7 @@ import { Clock, Moon, Sun } from 'lucide-react';
 import { useCurrentTime } from '@/hooks/useCurrentTime';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { Button } from '@/components/ui/button';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 import { getTimezoneAbbreviation } from '@/lib/timezone';
 
 export function Header() {
@@ -34,6 +35,7 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-1">
+            <LanguageSelector />
             <Button
               variant="ghost"
               size="icon"

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GripVertical, Settings, Trash2, Check, LayoutList, LayoutGrid, Maximize2, CloudSun, Square, RectangleHorizontal, Pencil, Flag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -24,6 +25,7 @@ interface TimezonePickerProps {
 }
 
 function TimezonePicker({ selectedIds, onChange }: TimezonePickerProps) {
+  const { t } = useTranslation();
   const { slots } = useTimezoneStore();
 
   const toggleTimezone = (id: string) => {
@@ -37,7 +39,7 @@ function TimezonePicker({ selectedIds, onChange }: TimezonePickerProps) {
   return (
     <div className="space-y-2">
       <p className="text-sm text-neutral-500 dark:text-neutral-400">
-        Select timezones to display in this widget:
+        {t('widget.settings.selectTimezones')}
       </p>
       <div className="max-h-60 overflow-y-auto space-y-1">
         {slots.map((slot) => {
@@ -67,7 +69,7 @@ function TimezonePicker({ selectedIds, onChange }: TimezonePickerProps) {
         })}
         {slots.length === 0 && (
           <p className="text-sm text-neutral-400 p-2">
-            No timezones available. Add some in the Timezones panel.
+            {t('timezone.noTimezones')}
           </p>
         )}
       </div>
@@ -96,30 +98,32 @@ function DisplaySettings({
   onColumnsChange,
   onFlagDisplayChange,
 }: DisplaySettingsProps) {
+  const { t } = useTranslation();
+
   const displayModes: { mode: ClockDisplayMode; label: string; icon: React.ReactNode; desc: string }[] = [
-    { mode: 'compact', label: 'Compact', icon: <LayoutList className="w-4 h-4" />, desc: 'Minimal list view' },
-    { mode: 'standard', label: 'Standard', icon: <LayoutGrid className="w-4 h-4" />, desc: 'Card grid view' },
-    { mode: 'expanded', label: 'Expanded', icon: <Maximize2 className="w-4 h-4" />, desc: 'Detailed cards with weather' },
+    { mode: 'compact', label: t('widget.displayModes.compact'), icon: <LayoutList className="w-4 h-4" />, desc: t('widget.displayModes.compactDesc') },
+    { mode: 'standard', label: t('widget.displayModes.standard'), icon: <LayoutGrid className="w-4 h-4" />, desc: t('widget.displayModes.standardDesc') },
+    { mode: 'expanded', label: t('widget.displayModes.expanded'), icon: <Maximize2 className="w-4 h-4" />, desc: t('widget.displayModes.expandedDesc') },
   ];
 
   const columnOptions: { value: 1 | 2 | 3 | 'auto'; label: string }[] = [
     { value: 1, label: '1' },
     { value: 2, label: '2' },
     { value: 3, label: '3' },
-    { value: 'auto', label: 'Auto' },
+    { value: 'auto', label: t('common.auto') },
   ];
 
   const flagOptions: { value: FlagDisplayMode; label: string; desc: string }[] = [
-    { value: 'both', label: 'Both', desc: 'State + Country (US)' },
-    { value: 'state', label: 'State', desc: 'State only (US)' },
-    { value: 'country', label: 'Country', desc: 'Country only' },
-    { value: 'none', label: 'None', desc: 'Hide flags' },
+    { value: 'both', label: t('widget.flagModes.both'), desc: t('widget.flagModes.bothDesc') },
+    { value: 'state', label: t('widget.flagModes.state'), desc: t('widget.flagModes.stateDesc') },
+    { value: 'country', label: t('widget.flagModes.country'), desc: t('widget.flagModes.countryDesc') },
+    { value: 'none', label: t('widget.flagModes.none'), desc: t('widget.flagModes.noneDesc') },
   ];
 
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-medium mb-2">Display Mode</p>
+        <p className="text-sm font-medium mb-2">{t('widget.settings.displayMode')}</p>
         <div className="grid grid-cols-3 gap-2">
           {displayModes.map(({ mode, label, icon, desc }) => (
             <button
@@ -142,7 +146,7 @@ function DisplaySettings({
       </div>
 
       <div>
-        <p className="text-sm font-medium mb-2">Cards Per Row</p>
+        <p className="text-sm font-medium mb-2">{t('widget.settings.cardsPerRow')}</p>
         <div className="flex gap-2">
           {columnOptions.map(({ value, label }) => (
             <button
@@ -165,7 +169,7 @@ function DisplaySettings({
       <div>
         <div className="flex items-center gap-2 mb-2">
           <Flag className="w-4 h-4 text-neutral-400" />
-          <p className="text-sm font-medium">Flag Display</p>
+          <p className="text-sm font-medium">{t('widget.settings.flagDisplay')}</p>
         </div>
         <div className="grid grid-cols-4 gap-2">
           {flagOptions.map(({ value, label, desc }) => (
@@ -191,8 +195,8 @@ function DisplaySettings({
         <div className="flex items-center gap-2">
           <CloudSun className="w-4 h-4 text-neutral-400" />
           <div>
-            <p className="text-sm font-medium">Show Weather</p>
-            <p className="text-xs text-neutral-400">Display weather conditions</p>
+            <p className="text-sm font-medium">{t('widget.settings.showWeather')}</p>
+            <p className="text-xs text-neutral-400">{t('widget.settings.showWeatherDesc')}</p>
           </div>
         </div>
         <button
@@ -223,6 +227,7 @@ export function WidgetWrapper({
   isDragging,
   dragHandleProps,
 }: WidgetWrapperProps) {
+  const { t } = useTranslation();
   const { updateWidget, deleteWidget } = useDashboardStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [pendingTimezones, setPendingTimezones] = useState<string[]>(widget.timezones);
@@ -251,7 +256,7 @@ export function WidgetWrapper({
   const isWorldClock = widget.type === 'world-clock';
 
   const handleDelete = () => {
-    if (confirm('Remove this widget from the dashboard?')) {
+    if (confirm(t('dashboard.removeWidget'))) {
       deleteWidget(dashboardId, widget.id);
     }
   };
@@ -335,13 +340,13 @@ export function WidgetWrapper({
       <Dialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{title} Settings</DialogTitle>
+            <DialogTitle>{title} {t('widget.settings.title')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-6">
             {/* Widget Title */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Widget Name</label>
+              <label className="text-sm font-medium mb-2 block">{t('widget.settings.widgetName')}</label>
               <div className="relative">
                 <input
                   type="text"
@@ -352,12 +357,12 @@ export function WidgetWrapper({
                 />
                 <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               </div>
-              <p className="text-xs text-neutral-400 mt-1">Leave empty for auto-generated codename</p>
+              <p className="text-xs text-neutral-400 mt-1">{t('widget.settings.widgetNamePlaceholder')}</p>
             </div>
 
             {/* Widget Width */}
             <div>
-              <p className="text-sm font-medium mb-2">Widget Width</p>
+              <p className="text-sm font-medium mb-2">{t('widget.settings.widgetWidth')}</p>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -370,7 +375,7 @@ export function WidgetWrapper({
                   )}
                 >
                   <Square className="w-4 h-4" />
-                  Half
+                  {t('common.half')}
                 </button>
                 <button
                   type="button"
@@ -383,7 +388,7 @@ export function WidgetWrapper({
                   )}
                 >
                   <RectangleHorizontal className="w-4 h-4" />
-                  Full
+                  {t('common.full')}
                 </button>
               </div>
             </div>
@@ -411,9 +416,9 @@ export function WidgetWrapper({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>
-              Cancel
+              {t('common.cancel')}
             </Button>
-            <Button onClick={handleSaveSettings}>Save</Button>
+            <Button onClick={handleSaveSettings}>{t('common.save')}</Button>
           </div>
         </DialogContent>
       </Dialog>

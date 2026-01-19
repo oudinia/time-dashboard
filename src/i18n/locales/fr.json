@@ -1,0 +1,110 @@
+{
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "settings": "Paramètres",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "yes": "Oui",
+    "no": "Non",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "search": "Rechercher",
+    "none": "Aucun",
+    "auto": "Auto",
+    "half": "Demi",
+    "full": "Plein",
+    "both": "Les deux"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "timezones": "Fuseaux horaires",
+    "settings": "Paramètres"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "noWidgets": "Aucun widget pour le moment.",
+    "addWidgetHint": "Ajoutez un widget pour commencer.",
+    "removeWidget": "Retirer ce widget du tableau de bord ?"
+  },
+  "widget": {
+    "worldClock": "Horloge mondiale",
+    "timeline": "Chronologie",
+    "custom": "Personnalisé",
+    "noTimezones": "Aucun fuseau horaire sélectionné.",
+    "addTimezonesHint": "Ajoutez des fuseaux horaires à ce widget pour voir les horloges.",
+    "noCustomWidget": "Aucun widget personnalisé configuré",
+    "unknownType": "Type de widget inconnu",
+    "settings": {
+      "title": "Paramètres",
+      "widgetName": "Nom du widget",
+      "widgetNamePlaceholder": "Laisser vide pour un nom généré automatiquement",
+      "widgetWidth": "Largeur du widget",
+      "displayMode": "Mode d'affichage",
+      "cardsPerRow": "Cartes par ligne",
+      "flagDisplay": "Affichage des drapeaux",
+      "showWeather": "Afficher la météo",
+      "showWeatherDesc": "Afficher les conditions météorologiques",
+      "selectTimezones": "Sélectionnez les fuseaux horaires à afficher dans ce widget :"
+    },
+    "displayModes": {
+      "compact": "Compact",
+      "compactDesc": "Vue liste minimale",
+      "standard": "Standard",
+      "standardDesc": "Grille de cartes",
+      "expanded": "Étendu",
+      "expandedDesc": "Cartes détaillées avec météo"
+    },
+    "flagModes": {
+      "both": "Les deux",
+      "bothDesc": "État + Pays (US)",
+      "state": "État",
+      "stateDesc": "État uniquement (US)",
+      "country": "Pays",
+      "countryDesc": "Pays uniquement",
+      "none": "Aucun",
+      "noneDesc": "Masquer les drapeaux"
+    }
+  },
+  "timezone": {
+    "title": "Fuseaux horaires",
+    "addTimezone": "Ajouter un fuseau horaire",
+    "editTimezone": "Modifier le fuseau horaire",
+    "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce fuseau horaire ?",
+    "noTimezones": "Aucun fuseau horaire disponible. Ajoutez-en dans le panneau Fuseaux horaires.",
+    "form": {
+      "label": "Libellé",
+      "labelPlaceholder": "ex., Bureau Côte Est",
+      "timezone": "Fuseau horaire",
+      "country": "Pays (pour les jours fériés)",
+      "countryNone": "Pas de pays (ignorer les jours fériés)",
+      "workStart": "Début de travail",
+      "workEnd": "Fin de travail",
+      "color": "Couleur"
+    },
+    "workingHours": "Heures de travail",
+    "available": "Disponible",
+    "away": "Absent"
+  },
+  "weather": {
+    "feelsLike": "Ressenti",
+    "humidity": "Humidité",
+    "wind": "Vent"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "timeFormat": "Format de l'heure",
+    "showSeconds": "Afficher les secondes",
+    "theme": "Thème",
+    "themes": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    }
+  }
+}

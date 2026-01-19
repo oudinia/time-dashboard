@@ -1,0 +1,110 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "add": "Añadir",
+    "settings": "Configuración",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "search": "Buscar",
+    "none": "Ninguno",
+    "auto": "Auto",
+    "half": "Mitad",
+    "full": "Completo",
+    "both": "Ambos"
+  },
+  "nav": {
+    "dashboard": "Panel",
+    "timezones": "Zonas horarias",
+    "settings": "Configuración"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "noWidgets": "No hay widgets todavía.",
+    "addWidgetHint": "Añade un widget para empezar.",
+    "removeWidget": "¿Eliminar este widget del panel?"
+  },
+  "widget": {
+    "worldClock": "Reloj mundial",
+    "timeline": "Línea de tiempo",
+    "custom": "Personalizado",
+    "noTimezones": "No hay zonas horarias seleccionadas.",
+    "addTimezonesHint": "Añade zonas horarias a este widget para ver los relojes.",
+    "noCustomWidget": "No hay widget personalizado configurado",
+    "unknownType": "Tipo de widget desconocido",
+    "settings": {
+      "title": "Configuración",
+      "widgetName": "Nombre del widget",
+      "widgetNamePlaceholder": "Dejar vacío para nombre generado automáticamente",
+      "widgetWidth": "Ancho del widget",
+      "displayMode": "Modo de visualización",
+      "cardsPerRow": "Tarjetas por fila",
+      "flagDisplay": "Mostrar banderas",
+      "showWeather": "Mostrar clima",
+      "showWeatherDesc": "Mostrar condiciones climáticas",
+      "selectTimezones": "Selecciona las zonas horarias a mostrar en este widget:"
+    },
+    "displayModes": {
+      "compact": "Compacto",
+      "compactDesc": "Vista de lista mínima",
+      "standard": "Estándar",
+      "standardDesc": "Vista de cuadrícula",
+      "expanded": "Expandido",
+      "expandedDesc": "Tarjetas detalladas con clima"
+    },
+    "flagModes": {
+      "both": "Ambos",
+      "bothDesc": "Estado + País (US)",
+      "state": "Estado",
+      "stateDesc": "Solo estado (US)",
+      "country": "País",
+      "countryDesc": "Solo país",
+      "none": "Ninguno",
+      "noneDesc": "Ocultar banderas"
+    }
+  },
+  "timezone": {
+    "title": "Zonas horarias",
+    "addTimezone": "Añadir zona horaria",
+    "editTimezone": "Editar zona horaria",
+    "deleteConfirm": "¿Estás seguro de que quieres eliminar esta zona horaria?",
+    "noTimezones": "No hay zonas horarias disponibles. Añade algunas en el panel de Zonas horarias.",
+    "form": {
+      "label": "Etiqueta",
+      "labelPlaceholder": "ej., Oficina Costa Este",
+      "timezone": "Zona horaria",
+      "country": "País (para festivos)",
+      "countryNone": "Sin país (omitir festivos)",
+      "workStart": "Inicio de trabajo",
+      "workEnd": "Fin de trabajo",
+      "color": "Color"
+    },
+    "workingHours": "Horario laboral",
+    "available": "Disponible",
+    "away": "Ausente"
+  },
+  "weather": {
+    "feelsLike": "Sensación",
+    "humidity": "Humedad",
+    "wind": "Viento"
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": "Idioma",
+    "timeFormat": "Formato de hora",
+    "showSeconds": "Mostrar segundos",
+    "theme": "Tema",
+    "themes": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    }
+  }
+}
