@@ -1,3 +1,11 @@
+> ## 💤 Dormant
+>
+> No commits since **2026-01-19** — about 8 months.
+>
+> *Marked 20 September 2026 during a repository audit. Remove this block if work resumes.*
+
+---
+
 # Time Zone Dashboard
 
 A B2B team dashboard for managers of distributed teams, showing team member locations, current times, and working hours overlap.
